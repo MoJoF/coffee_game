@@ -7,11 +7,11 @@ export default class VirtualControls {
         this.dir = new Phaser.Math.Vector2(0, 0)
         this.interactPressed = false
 
-        this.isMobile = 
+        this.isMobile =
             scene.sys.game.device.os.android ||
             scene.sys.game.device.os.iOS ||
             scene.sys.game.device.os.iPad
-        
+
         if (!this.isMobile) return
 
         const w = scene.scale.width
@@ -44,7 +44,53 @@ export default class VirtualControls {
         scene.input.on("pointerdown", (p) => {
             if (this.btn.getBounds().contains(p.x, p.y)) return
 
-            const dx = p.x
+            const dx = p.x - this.basePos.x
+            const dy = p.y - this.basePos.y
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            if (dist <= 110 && this.pointerId === null) {
+                this.pointerId = p.id
+                this._updateStick(p)
+            }
         })
+
+        scene.input.on("pointermove", (p) => {
+            if (this.pointerId === p.id) this._updateStick(p)
+        })
+
+        scene.input.on("pointerup", (p) => {
+            if (this.pointerId === p.id) {
+                this.pointerId = null
+                this.dir.set(0, 0)
+                this.knob.setPosition(this.basePos.x, this.basePos.y)
+            }
+        })
+    }
+
+    _updateStick(pointer) {
+        const dx = pointer.x - this.basePos.x
+        const dy = pointer.y - this.basePos.y
+
+        const v = new Phaser.Math.Vector2(dx, dy)
+        const max = 55
+
+        if (v.length() > max) v.setLength(max)
+
+        this.knob.setPosition(this.basePos.x + v.x, this.basePos + v.y)
+        const norm = new Phaser.Math.Vector2(dx, dy)
+        if (norm.length() < 10) {
+            this.dir.set(0, 0)
+        } else {
+            norm.normalize()
+            this.dir.set(norm.x, norm.y)
+        }
+    }
+
+    consumeInteractJustPressed() {
+        if (!this.isMobile) return false
+        if (this.interactPressed) {
+            this.interactPressed = false
+            return true
+        }
+        return false
     }
 }

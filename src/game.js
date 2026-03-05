@@ -6,7 +6,7 @@ export function createGame() {
     const config = {
         type: Phaser.AUTO,
         parent: "app",
-        backgroundColor: #111111,
+        backgroundColor: "#111111",
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
