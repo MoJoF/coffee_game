@@ -109,7 +109,7 @@ export default class CafeScene extends Phaser.Scene {
         });
 
 
-        this.add.image(500, 150, "cafe_atlas", "burger").setScale(3)
+        this.add.image(500, 150, "cafe_atlas", "pitcher").setScale(5)
     }
 
     update() {
