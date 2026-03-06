@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import DialogueBox from "../ui/DialogueBox";
 import VirtualControls from "../ui/VirtualControls";
 import Interactables from "../gameplay/Interactables";
+import ingredientsSprite  from "../sprites/ingredients.png"
 
 
 export default class CafeScene extends Phaser.Scene {
