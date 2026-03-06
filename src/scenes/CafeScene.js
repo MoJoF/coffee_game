@@ -24,7 +24,7 @@ export default class CafeScene extends Phaser.Scene {
         // ВАЖНО: rectangle -> add.rectangle(), а физику добавляем отдельно через physics.add.existing(obj, true)
         this.walls = [];
 
-        const topWall = this.add.rectangle(w / 2, 10, w, 20, 0x333333);
+        const topWall = this.add.image(0, 0, "cafe_atlas", "wall").setScale(5);
         this.physics.add.existing(topWall, true);
         this.walls.push(topWall);
 
@@ -49,16 +49,6 @@ export default class CafeScene extends Phaser.Scene {
         const pBody = this.player.body;
         pBody.setCollideWorldBounds(true);
         pBody.setSize(28, 28, true);
-
-        // Коллизии игрока со стенами
-        for (const wall of this.walls) {
-            this.physics.add.collider(this.player, wall);
-        }
-
-        // --- “Стойка” как декор (можно сделать коллизией тоже) ---
-        this.counter = this.add.rectangle(w / 2, h / 2 + 120, 240, 40, 0x555555);
-        this.physics.add.existing(this.counter, true);
-        this.physics.add.collider(this.player, this.counter);
 
         // Клавиатура (ПК)
         this.cursors = this.input.keyboard.createCursorKeys();
