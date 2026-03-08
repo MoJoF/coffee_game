@@ -112,6 +112,8 @@ export default class CafeScene extends Phaser.Scene {
             .setScale(2.5)
             .setOrigin(0, 0)
 
+
+        
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
         const pBody = this.player.body;
@@ -156,7 +158,6 @@ export default class CafeScene extends Phaser.Scene {
         this.interactables.addRectForObject(this.clock, {
             extraWidth: 20,
             extraHeight: 120,
-            showZone: true,
             hintOffsetY: 30,
             prompt: 'Нажмите "E"',
             text: ["17:12"]
