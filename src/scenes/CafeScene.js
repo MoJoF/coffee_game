@@ -112,7 +112,12 @@ export default class CafeScene extends Phaser.Scene {
             .setScale(2.5)
             .setOrigin(0, 0)
 
-
+        // Отрисовка тумбочки
+        this.shelf_2 = this.add.image(w, 120, "cafe_atlas", "shelf_2")
+            .setScale(4)
+            .setOrigin(1)
+        this.physics.add.existing(this.shelf_2, true)
+        this.physics.add.collider(this.player, this.shelf_2)
         
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
@@ -159,9 +164,17 @@ export default class CafeScene extends Phaser.Scene {
             extraWidth: 20,
             extraHeight: 120,
             hintOffsetY: 30,
-            prompt: 'Нажмите "E"',
+            prompt: 'Проверить время',
             text: ["17:12"]
         });
+
+        this.interactables.addRectForObject(this.shelf_2, {
+            offsetX: -10,
+            offsetY: -30,
+            extraHeight: 20,
+            extraWidth: 100,
+            text: ["Тумбочка закрыта на ключ."]
+        })
 
         // this.interactables.addRect({
         //     x: 760,
