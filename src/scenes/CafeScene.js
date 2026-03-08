@@ -92,6 +92,22 @@ export default class CafeScene extends Phaser.Scene {
         // ВАЖНО: rectangle -> add.rectangle(), а физику добавляем отдельно через physics.add.existing(obj, true)
         this.createWall(this.player)
 
+        // Отрисовка барной стойки
+        this.counter = this.add.image(0, 70, "cafe_atlas", "counter")
+            .setScale(5)
+            .setOrigin(0, 0)
+        this.counterCollider = this.add.rectangle(
+            0 + this.counter.displayWidth / 2,
+            70 + this.counter.displayHeight / 2,
+            this.counter.displayWidth,
+            this.counter.displayHeight,
+            0xff0000,
+            0
+        )
+        this.physics.add.existing(this.counterCollider, true)
+        this.physics.add.collider(this.player, this.counterCollider)
+
+
 
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
@@ -124,13 +140,18 @@ export default class CafeScene extends Phaser.Scene {
         //     text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
         // });
 
-        // this.interactables.addRect({
-        //     x: this.counter.x,
-        //     y: this.counter.y - 40,
-        //     w: 260,
-        //     h: 120,
-        //     text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
-        // });
+        this.interactables.addRect({
+            x: (0 + this.counter.displayWidth) / 2,
+            y: (70 + this.counter.displayHeight / 2) + 40,
+            w: this.counter.displayWidth,
+            h: this.counter.displayHeight,
+            prompt: "Нажмите \"E\"",
+            text: [
+                "Барная стойка пахнет кофе.",
+                "На дереве остались липкие следы сиропа.",
+                "Сегодня будет шумно."
+            ],
+        });
 
         // this.interactables.addRect({
         //     x: 760,

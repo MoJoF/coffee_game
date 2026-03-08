@@ -26,9 +26,17 @@ export default class Interactables {
         this.hintOffsetY = options.hintOffsetY ?? -50;
     }
 
-    addRect({ x, y, w, h, text, prompt = "E", onInteract = null }) {
+    addRect({ x, y, w, h, text, prompt = "E", onInteract = null, showZone = false, zoneColor = 0x00ff00, zoneAlpha = 0.25 }) {
         const zone = this.scene.add.zone(x, y, w, h);
         this.scene.physics.add.existing(zone, true);
+
+        let debugRect = null
+
+        if (showZone) {
+            debugRect = this.scene.add.rectangle(x, y, w, h, zoneColor, zoneAlpha)
+                .setDepth(900)
+                .setOrigin(0.5)
+        }
 
         const item = { zone, text, prompt, onInteract };
         this.items.push(item);
@@ -86,7 +94,11 @@ export default class Interactables {
                     this.nearest.onInteract();
                 } else {
                     // обычный диалог
-                    this.dialogue.show(this.nearest.text ?? "...");
+                    if (Array.isArray(this.nearest.text)) {
+                        this.dialogue.showSequence(this.nearest.text);
+                    } else {
+                        this.dialogue.show(this.nearest.text ?? "...");
+                    }
                 }
             }
         } else {
