@@ -9,6 +9,70 @@ export default class CafeScene extends Phaser.Scene {
         super("CafeScene");
     }
 
+    createWall(player) {
+        const w = this.scale.width
+        const h = this.scale.height
+        const sceneWidth = this.scale.width
+        const tileSize = 16
+        const wallY = 0
+
+        this.wallLayer = this.add.layer()
+
+        for (let x = 0; x < sceneWidth; x += tileSize * 3) {
+            const tile = this.add.image(x, wallY, "cafe_atlas", "wall")
+            tile.setScale(3)
+            tile.setOrigin(0, 0)
+            this.wallLayer.add(tile)
+        }
+
+        this.topWallCollider = this.add.rectangle(
+            sceneWidth / 2,
+            tileSize * 5.75,
+            sceneWidth,
+            8,
+            0x000000,
+            0
+        )
+
+        this.physics.add.existing(this.topWallCollider, true)
+        this.physics.add.collider(player, this.topWallCollider)
+
+        this.leftBound = this.add.rectangle(0, h / 2, 1, h, 0x00ff00, 0)
+        this.leftBound.setOrigin(0, 0.5)
+        this.physics.add.existing(this.leftBound, true)
+
+        this.rightBound = this.add.rectangle(w, h / 2, 1, h, 0x00ff00, 0)
+        this.rightBound.setOrigin(0, 0.5)
+        this.physics.add.existing(this.rightBound, true)
+
+        this.bottomBound = this.add.rectangle(w / 2, h, w, 1, 0x00ff00, 0)
+        this.bottomBound.setOrigin(0.5, 0)
+        this.physics.add.existing(this.bottomBound, true)
+
+        this.physics.add.collider(player, this.leftBound)
+        this.physics.add.collider(player, this.rightBound)
+        this.physics.add.collider(player, this.bottomBound)
+    }
+
+    drawFloor() {
+        const w = this.scale.width
+        const h = this.scale.height
+        const scale = 5
+        const tileSize = 16 * scale
+        const wallHeight = 16 * scale
+
+        this.floorLayer = this.add.layer()
+
+        for (let y = wallHeight; y < h; y += tileSize) {
+            for (let x = 0; x < w; x += tileSize) {
+                const tile = this.add.image(x, y, "cafe_atlas", "floor")
+                tile.setScale(scale)
+                tile.setOrigin(0, 0)
+                this.floorLayer.add(tile)
+            }
+        }
+    }
+
     create() {
         const w = this.scale.width;
         const h = this.scale.height;
@@ -18,31 +82,16 @@ export default class CafeScene extends Phaser.Scene {
         this.vc = new VirtualControls(this);
 
         // Фон (пол)
-        this.add.rectangle(w / 2, h / 2, w, h, 0x1a1a1a);
-
-        // --- Стены / границы ---
-        // ВАЖНО: rectangle -> add.rectangle(), а физику добавляем отдельно через physics.add.existing(obj, true)
-        this.walls = [];
-
-        const topWall = this.add.image(0, 0, "cafe_atlas", "wall").setScale(5);
-        this.physics.add.existing(topWall, true);
-        this.walls.push(topWall);
-
-        const bottomWall = this.add.rectangle(w / 2, h - 10, w, 20, 0x333333);
-        this.physics.add.existing(bottomWall, true);
-        this.walls.push(bottomWall);
-
-        const leftWall = this.add.rectangle(10, h / 2, 20, h, 0x333333);
-        this.physics.add.existing(leftWall, true);
-        this.walls.push(leftWall);
-
-        const rightWall = this.add.rectangle(w - 10, h / 2, 20, h, 0x333333);
-        this.physics.add.existing(rightWall, true);
-        this.walls.push(rightWall);
+        this.drawFloor()
 
         // --- Игрок ---
         this.player = this.add.rectangle(w / 2, h / 2, 28, 28, 0xffffff);
-        this.physics.add.existing(this.player); 
+        this.physics.add.existing(this.player);
+
+        // --- Стены / границы ---
+        // ВАЖНО: rectangle -> add.rectangle(), а физику добавляем отдельно через physics.add.existing(obj, true)
+        this.createWall(this.player)
+
 
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
@@ -62,37 +111,37 @@ export default class CafeScene extends Phaser.Scene {
         });
 
         this.interactables = new Interactables(this, this.player, this.dialogue, {
-            interactKey: this.keys.E,        
-            virtualControls: this.vc,        
-            hintOffsetY: -70,                
+            interactKey: this.keys.E,
+            virtualControls: this.vc,
+            hintOffsetY: -70,
         });
 
-        this.interactables.addRect({
-            x: this.counter.x,
-            y: this.counter.y - 40,
-            w: 260,
-            h: 120,
-            text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
-        });
+        // this.interactables.addRect({
+        //     x: this.counter.x,
+        //     y: this.counter.y - 40,
+        //     w: 260,
+        //     h: 120,
+        //     text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
+        // });
 
-        this.interactables.addRect({
-            x: this.counter.x,
-            y: this.counter.y - 40,
-            w: 260,
-            h: 120,
-            text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
-        });
+        // this.interactables.addRect({
+        //     x: this.counter.x,
+        //     y: this.counter.y - 40,
+        //     w: 260,
+        //     h: 120,
+        //     text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
+        // });
 
-        this.interactables.addRect({
-            x: 760,
-            y: 260,
-            w: 160,
-            h: 120,
-            prompt: "E",
-            onInteract: () => {
-                this.dialogue.show("Касса молчит. Терминал ждёт карту, но сегодня покупателей мало.");
-            },
-        });
+        // this.interactables.addRect({
+        //     x: 760,
+        //     y: 260,
+        //     w: 160,
+        //     h: 120,
+        //     prompt: "E",
+        //     onInteract: () => {
+        //         this.dialogue.show("Касса молчит. Терминал ждёт карту, но сегодня покупателей мало.");
+        //     },
+        // });
 
         this.input.on("pointerdown", () => {
             if (this.dialogue.visible) this.dialogue.skipOrClose();
