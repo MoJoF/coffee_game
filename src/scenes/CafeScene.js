@@ -110,7 +110,7 @@ export default class CafeScene extends Phaser.Scene {
         // Отрисовка часов
         this.clock = this.add.image(500, 20, "cafe_atlas", "clock")
             .setScale(2.5)
-            .setOrigin(0)
+            .setOrigin(0, 0)
 
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
@@ -143,29 +143,23 @@ export default class CafeScene extends Phaser.Scene {
         //     text: "Стойка липкая от сиропа. Кто-то опять пролил карамель.",
         // });
 
-        this.interactables.addRect({
-            x: (0 + this.counter.displayWidth) / 2,
-            y: (70 + this.counter.displayHeight / 2) + 40,
-            w: this.counter.displayWidth,
-            h: this.counter.displayHeight,
-            prompt: "Нажмите \"E\"",
+        this.interactables.addRectForObject(this.counter, {
+            offsetY: 40,
             text: [
                 "Барная стойка пахнет кофе.",
                 "На дереве остались липкие следы сиропа.",
                 "Сегодня будет шумно."
             ],
+            prompt: 'Нажмите "E"'
         });
 
-        this.interactables.addRect({
-            x: 480 + this.clock.displayWidth,
-            y: 5 + this.clock.displayHeight,
-            w: this.clock.displayWidth,
-            h: this.clock.displayHeight,
+        this.interactables.addRectForObject(this.clock, {
+            extraWidth: 20,
+            extraHeight: 120,
             showZone: true,
-            prompt: "Нажмите \"E\"",
-            text: [
-                "17:12"
-            ],
+            hintOffsetY: 30,
+            prompt: 'Нажмите "E"',
+            text: ["17:12"]
         });
 
         // this.interactables.addRect({

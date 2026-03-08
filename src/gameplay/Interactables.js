@@ -6,8 +6,8 @@ export default class Interactables {
         this.player = player;
         this.dialogue = dialogue;
 
-        this.interactKey = options.interactKey; // Phaser Key (E/Space)
-        this.virtualControls = options.virtualControls; // твой mobile контроллер
+        this.interactKey = options.interactKey;
+        this.virtualControls = options.virtualControls;
 
         this.items = [];
         this.nearest = null;
@@ -26,22 +26,67 @@ export default class Interactables {
         this.hintOffsetY = options.hintOffsetY ?? -50;
     }
 
-    addRect({ x, y, w, h, text, prompt = "E", onInteract = null, showZone = false, zoneColor = 0x00ff00, zoneAlpha = 0.25 }) {
+    addRect({
+        x,
+        y,
+        w,
+        h,
+        text,
+        prompt = "E",
+        onInteract = null,
+        showZone = false,
+        zoneColor = 0x00ff00,
+        zoneAlpha = 0.25,
+        hintOffsetY = null
+    }) {
         const zone = this.scene.add.zone(x, y, w, h);
         this.scene.physics.add.existing(zone, true);
 
-        let debugRect = null
+        let debugRect = null;
 
         if (showZone) {
             debugRect = this.scene.add.rectangle(x, y, w, h, zoneColor, zoneAlpha)
                 .setDepth(900)
-                .setOrigin(0.5)
+                .setOrigin(0.5);
         }
 
-        const item = { zone, text, prompt, onInteract };
+        const item = { zone, text, prompt, onInteract, debugRect, hintOffsetY };
         this.items.push(item);
 
         return item;
+    }
+
+    addRectForObject(sprite, {
+        offsetX = 0,
+        offsetY = 0,
+        extraWidth = 0,
+        extraHeight = 0,
+        text,
+        prompt = "E",
+        onInteract = null,
+        showZone = false,
+        zoneColor = 0x00ff00,
+        zoneAlpha = 0.25,
+        hintOffsetY = null
+    }) {
+        const x = sprite.x + sprite.displayWidth / 2 + offsetX;
+        const y = sprite.y + sprite.displayHeight / 2 + offsetY;
+        const w = sprite.displayWidth + extraWidth;
+        const h = sprite.displayHeight + extraHeight;
+
+        return this.addRect({
+            x,
+            y,
+            w,
+            h,
+            text,
+            prompt,
+            onInteract,
+            showZone,
+            zoneColor,
+            zoneAlpha,
+            hintOffsetY
+        });
     }
 
     _findNearestOverlapping() {
@@ -52,7 +97,6 @@ export default class Interactables {
         const py = this.player.y;
 
         for (const item of this.items) {
-            // arcade overlap check
             const overlapping = this.scene.physics.overlap(this.player, item.zone);
             if (!overlapping) continue;
 
@@ -70,7 +114,6 @@ export default class Interactables {
     }
 
     update() {
-        // Если диалог открыт — E закрывает/пропускает, и мы не показываем подсказку
         const interactPressed =
             (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
             (this.virtualControls?.consumeInteractJustPressed?.() ?? false);
@@ -84,16 +127,15 @@ export default class Interactables {
         this.nearest = this._findNearestOverlapping();
 
         if (this.nearest) {
+            const hintOffsetY = this.nearest.hintOffsetY ?? this.hintOffsetY
             this.hint.setText(this.nearest.prompt);
-            this.hint.setPosition(this.nearest.zone.x, this.nearest.zone.y + this.hintOffsetY);
+            this.hint.setPosition(this.nearest.zone.x, this.nearest.zone.y + hintOffsetY);
             this.hint.setVisible(true);
 
             if (interactPressed) {
                 if (typeof this.nearest.onInteract === "function") {
-                    // кастомная логика (например открыть меню кофе)
                     this.nearest.onInteract();
                 } else {
-                    // обычный диалог
                     if (Array.isArray(this.nearest.text)) {
                         this.dialogue.showSequence(this.nearest.text);
                     } else {
