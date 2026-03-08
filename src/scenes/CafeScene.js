@@ -107,7 +107,10 @@ export default class CafeScene extends Phaser.Scene {
         this.physics.add.existing(this.counterCollider, true)
         this.physics.add.collider(this.player, this.counterCollider)
 
-
+        // Отрисовка часов
+        this.clock = this.add.image(500, 20, "cafe_atlas", "clock")
+            .setScale(2.5)
+            .setOrigin(0)
 
         // Настройки тела игрока
         /** @type {Phaser.Physics.Arcade.Body} */
@@ -153,6 +156,18 @@ export default class CafeScene extends Phaser.Scene {
             ],
         });
 
+        this.interactables.addRect({
+            x: 480 + this.clock.displayWidth,
+            y: 5 + this.clock.displayHeight,
+            w: this.clock.displayWidth,
+            h: this.clock.displayHeight,
+            showZone: true,
+            prompt: "Нажмите \"E\"",
+            text: [
+                "17:12"
+            ],
+        });
+
         // this.interactables.addRect({
         //     x: 760,
         //     y: 260,
@@ -167,9 +182,6 @@ export default class CafeScene extends Phaser.Scene {
         this.input.on("pointerdown", () => {
             if (this.dialogue.visible) this.dialogue.skipOrClose();
         });
-
-
-        this.add.image(500, 150, "cafe_atlas", "pitcher").setScale(5)
     }
 
     update() {
